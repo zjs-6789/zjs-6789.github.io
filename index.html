@@ -1,7 +1,235 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>我的待办清单</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .todo-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 400px;
+            max-width: 90%;
+            padding: 30px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        #taskInput {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        #taskInput:focus {
+            border-color: #0066cc;
+        }
+        #addBtn {
+            background: #0066cc;
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+        #addBtn:hover {
+            background: #0052a3;
+        }
+        #addBtn:active {
+            transform: scale(0.95);
+        }
+        .task-list {
+            list-style: none;
+        }
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 10px;
+            background: #fafafa;
+            border-radius: 30px;
+            margin-bottom: 10px;
+            animation: fadeIn 0.3s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: #888;
+        }
+        .task-text {
+            flex: 1;
+            font-size: 16px;
+            margin: 0 10px;
+            word-break: break-word;
+        }
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #ff4444;
+            font-size: 20px;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+        .delete-btn:hover {
+            background: rgba(255, 68, 68, 0.1);
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            color: #777;
+            font-size: 14px;
+        }
+        #clearCompleted {
+            background: none;
+            border: none;
+            color: #0066cc;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: underline;
+        }
+        #clearCompleted:hover {
+            color: #0052a3;
+        }
+    </style>
+</head>
 <body>
-  <h1>Hello World!</h1>
-  <p>如果看到这行字，说明网页正常了。</p>
+    <div class="todo-container">
+        <h1>✅ 我的待办清单</h1>
+        <div class="input-area">
+            <input type="text" id="taskInput" placeholder="输入新任务...">
+            <button id="addBtn">+</button>
+        </div>
+        <ul class="task-list" id="taskList"></ul>
+        <div class="stats">
+            <span id="taskCount">0 个任务</span>
+            <button id="clearCompleted">清除已完成</button>
+        </div>
+    </div>
+
+    <script>
+        // 从本地存储加载任务
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+        const taskListEl = document.getElementById('taskList');
+        const taskInput = document.getElementById('taskInput');
+        const addBtn = document.getElementById('addBtn');
+        const taskCountEl = document.getElementById('taskCount');
+        const clearCompletedBtn = document.getElementById('clearCompleted');
+
+        // 保存任务到本地存储
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        // 渲染任务列表
+        function renderTasks() {
+            taskListEl.innerHTML = '';
+            tasks.forEach((task, index) => {
+                const li = document.createElement('li');
+                li.className = `task-item ${task.completed ? 'completed' : ''}`;
+                li.innerHTML = `
+                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} data-index="${index}">
+                    <span class="task-text">${task.text}</span>
+                    <button class="delete-btn" data-index="${index}">&times;</button>
+                `;
+                taskListEl.appendChild(li);
+            });
+            // 更新任务数量
+            const total = tasks.length;
+            const completedCount = tasks.filter(t => t.completed).length;
+            taskCountEl.textContent = `${total} 个任务 (已完成 ${completedCount})`;
+        }
+
+        // 添加新任务
+        function addTask() {
+            const text = taskInput.value.trim();
+            if (text) {
+                tasks.push({ text, completed: false });
+                saveTasks();
+                renderTasks();
+                taskInput.value = '';
+            }
+        }
+
+        // 处理复选框点击（完成/未完成）
+        taskListEl.addEventListener('change', (e) => {
+            if (e.target.classList.contains('task-checkbox')) {
+                const index = e.target.dataset.index;
+                tasks[index].completed = e.target.checked;
+                saveTasks();
+                renderTasks();
+            }
+        });
+
+        // 处理删除按钮
+        taskListEl.addEventListener('click', (e) => {
+            if (e.target.classList.contains('delete-btn')) {
+                const index = e.target.dataset.index;
+                tasks.splice(index, 1);
+                saveTasks();
+                renderTasks();
+            }
+        });
+
+        // 清除已完成任务
+        clearCompletedBtn.addEventListener('click', () => {
+            tasks = tasks.filter(task => !task.completed);
+            saveTasks();
+            renderTasks();
+        });
+
+        // 添加按钮点击事件
+        addBtn.addEventListener('click', addTask);
+
+        // 回车键添加任务
+        taskInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+
+        // 初始渲染
+        renderTasks();
+    </script>
 </body>
 </html>
