@@ -1,26 +1,28 @@
+这是为您生成的HTML文件。它会在页面中播放您指定的B站视频，并提供一个醒目的粉色按钮。点击按钮后，视频会关闭，同时满屏幕会出现大量“关注塔菲喵”等粉色文字并四处飞舞，效果非常夸张。
+```html
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>塔菲喵·满屏粉色弹幕</title>
+    <title>塔菲降临 · 满屏粉色弹幕狂想曲</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none; /* 避免拖动文字时选中，更干净 */
+            user-select: none; /* 避免拖动文字，视觉更纯粹 */
         }
 
         html, body {
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: #0d0b1a;  /* 深紫黑底，衬托粉色荧光 */
-            font-family: system-ui, 'Segoe UI', 'Poppins', 'Comic Neue', 'Microsoft YaHei', cursive;
+            background: #0f0c1f;  /* 深紫黑色背景，衬托荧光粉 */
+            font-family: 'Segoe UI', 'Poppins', 'Comic Neue', 'Microsoft YaHei', 'PingFang SC', cursive;
         }
 
-        /* --- 视频容器: 全屏覆盖，默认显示 --- */
+        /* 视频容器：全屏覆盖，默认显示B站视频 */
         .video-container {
             position: fixed;
             top: 0;
@@ -29,12 +31,11 @@
             height: 100%;
             z-index: 10;
             background: #000;
-            transition: opacity 0.45s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            transition: opacity 0.5s cubic-bezier(0.23, 1, 0.32, 1), visibility 0.5s;
             opacity: 1;
             visibility: visible;
         }
 
-        /* 视频关闭后隐藏视频区域 */
         .video-container.hidden {
             opacity: 0;
             visibility: hidden;
@@ -49,7 +50,7 @@
             background: #000;
         }
 
-        /* ---------- 粉色大字乱飞的世界 ---------- */
+        /* ---------- 粉色大字乱飞主战场 ---------- */
         .floating-words-container {
             position: fixed;
             top: 0;
@@ -57,57 +58,54 @@
             width: 100%;
             height: 100%;
             z-index: 20;
-            pointer-events: none;  /* 让文字不干扰点击，但本身也不需要点击 */
+            pointer-events: none;   /* 让文字不干扰点击，用户仍可点击右上角按钮 */
             overflow: hidden;
         }
 
-        /* 单个飞舞大字卡牌风格 */
+        /* 单个飞舞大字，极致粉嫩夸张 */
         .fly-word {
             position: absolute;
             white-space: nowrap;
             font-weight: 900;
             font-size: 2.8rem;
-            letter-spacing: 0.04em;
-            text-shadow: 0 0 12px #ff99cc, 0 0 25px #ff66aa, 0 4px 12px rgba(0,0,0,0.3);
-            background: linear-gradient(135deg, #FF69B4, #FF1493, #FFB6C1);
+            letter-spacing: 0.05em;
+            background: linear-gradient(135deg, #FF66CC, #FF1493, #FFB3D9, #FF69B4);
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
-            text-stroke: 1px #ffc0cb;
-            -webkit-text-stroke: 1px rgba(255, 192, 203, 0.6);
-            will-change: transform, opacity;
-            filter: drop-shadow(0 8px 18px rgba(255, 20, 147, 0.5));
-            font-family: 'Segoe UI', 'Poppins', 'Comic Neue', 'Microsoft YaHei', cursive;
-            animation: floatGlow 0.3s ease-out;
-            transition: transform 0.05s linear;
-            /* 保证文字在任何背景下都极度抢眼 */
-            mix-blend-mode: normal;
+            text-shadow: 0 0 12px #ff77aa, 0 0 28px #ff44aa, 0 4px 12px rgba(0,0,0,0.3);
+            -webkit-text-stroke: 1px rgba(255, 200, 220, 0.7);
+            filter: drop-shadow(0 0 8px #ff3399);
+            will-change: transform, left, top;
+            transition: transform 0.03s linear;
+            font-family: inherit;
+            animation: popInto 0.25s cubic-bezier(0.34, 1.2, 0.64, 1);
         }
-        
-        /* 额外追加几种不同大小的夸张变体 */
+
+        /* 不同尺寸级别：让满屏更疯狂 */
         .fly-word.big {
             font-size: 4rem;
-            font-weight: 900;
-            text-shadow: 0 0 20px #ff66aa, 0 0 35px #ff3388;
+            text-shadow: 0 0 22px #ff66aa, 0 0 38px #ff3388;
+        }
+        .fly-word.giant {
+            font-size: 5.8rem;
+            letter-spacing: 0.08em;
+            text-shadow: 0 0 30px #ff55aa, 0 0 48px #ff2288;
         }
         .fly-word.small {
             font-size: 2rem;
             font-weight: 800;
         }
-        .fly-word.giant {
-            font-size: 5.5rem;
-            letter-spacing: 0.08em;
-        }
 
-        /* 可爱的呼吸闪烁动画 */
-        @keyframes floatGlow {
+        /* 入场小弹跳动画 */
+        @keyframes popInto {
             0% {
                 opacity: 0;
-                transform: scale(0.7) rotate(-5deg);
-                filter: blur(4px);
+                transform: scale(0.3) rotate(-12deg);
+                filter: blur(8px);
             }
-            70% {
-                transform: scale(1.05) rotate(2deg);
+            60% {
+                transform: scale(1.1) rotate(3deg);
             }
             100% {
                 opacity: 1;
@@ -116,395 +114,446 @@
             }
         }
 
-        /* 可选：一个极小角落的装饰提示(可选不影响主旨) */
-        .hint-reminder {
+        /* 超夸张关闭按钮（塔菲风格） */
+        .taffy-close-btn {
             position: fixed;
-            bottom: 18px;
-            right: 20px;
+            top: 22px;
+            right: 22px;
             z-index: 30;
+            background: linear-gradient(125deg, #FF69B4, #FF1493, #FF85C1);
+            color: #fff8f0;
+            font-weight: 900;
+            font-size: 1.3rem;
+            padding: 12px 28px;
+            border-radius: 60px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 8px 22px rgba(255, 20, 147, 0.6), 0 0 0 2px #ffe0f0 inset, 0 0 0 4px rgba(255,255,200,0.3);
+            font-family: inherit;
+            backdrop-filter: blur(8px);
+            letter-spacing: 2px;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+        }
+
+        .taffy-close-btn:hover {
+            transform: scale(1.05);
+            background: linear-gradient(125deg, #FF3399, #FF1493, #FF5DA0);
+            box-shadow: 0 12px 28px #ff1493;
+            letter-spacing: 2.5px;
+        }
+
+        .taffy-close-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* 屏幕下方角落一个小水印 (可爱装饰) */
+        .corner-note {
+            position: fixed;
+            bottom: 14px;
+            left: 18px;
+            z-index: 31;
             font-size: 13px;
-            background: rgba(255, 105, 180, 0.75);
-            backdrop-filter: blur(10px);
-            padding: 6px 14px;
+            background: rgba(255, 105, 180, 0.7);
+            backdrop-filter: blur(8px);
+            padding: 5px 14px;
             border-radius: 40px;
-            color: #fff3f9;
+            color: #fff0fb;
             font-weight: bold;
             pointer-events: none;
             font-family: monospace;
-            border: 1px solid #ffb6e1;
-            box-shadow: 0 0 12px hotpink;
+            border: 1px solid #ffb8df;
         }
 
-        /* 移动端略微调整大字大小避免过于拥挤 */
-        @media (max-width: 680px) {
+        /* 移动端适配: 字体稍稍缩小避免重叠严重 */
+        @media (max-width: 700px) {
             .fly-word {
                 font-size: 1.8rem;
             }
             .fly-word.big {
-                font-size: 2.8rem;
+                font-size: 2.5rem;
             }
             .fly-word.giant {
-                font-size: 3.3rem;
+                font-size: 3.2rem;
+            }
+            .taffy-close-btn {
+                font-size: 1rem;
+                padding: 8px 20px;
+                top: 16px;
+                right: 16px;
             }
         }
 
-        /* 确保文字层在视频上层且全部可见 */
+        /* 确保文字层闪烁有趣 */
     </style>
 </head>
 <body>
 
-<!-- 视频区域: 承载B站iframe -->
+<!-- 视频容器：B站官方视频 “关注塔菲谢谢喵☆”  -->
 <div class="video-container" id="videoContainer">
     <iframe 
         class="bilibili-frame"
         id="biliIframe"
-        src="//player.bilibili.com/player.html?bvid=BV1xx411c7mD&page=1&autoplay=1"
+        src="//player.bilibili.com/player.html?bvid=BV1fHr1BFESg&page=1&autoplay=1"
         allow="autoplay; fullscreen"
         allowfullscreen>
     </iframe>
 </div>
 
-<!-- 漂浮大字容器: 初始为空，视频关闭后才会填满飞舞 -->
+<!-- 粉色大字乱飞的容器 -->
 <div class="floating-words-container" id="floatingContainer"></div>
-<div class="hint-reminder">🎀 塔菲永相随 🎀</div>
+
+<!-- 夸张关闭按钮 & 装饰性小尾巴 -->
+<button class="taffy-close-btn" id="taffyCloseBtn">💗 关掉视频 · 塔菲降临 💗</button>
+<div class="corner-note">🐱 关注塔菲谢谢喵 ~ 满屏粉色能量</div>
 
 <script>
     (function() {
-        // ----------------- 配置区域 -----------------
-        // 请替换成你的真实B站视频ID (目前示例 BV1xx411c7mD)
-        // 注意: 实际使用时，需要将下面链接中的 BV1xx411c7mD 换成你自己B站视频的ID!!
-        // 例如: 你的B站视频网址是 https://www.bilibili.com/video/BV1Fy4y1n7jM ，则bvid = "BV1Fy4y1n7jM"
-        const YOUR_BVID = "BV1xx411c7mD";   // <<<----- 在这里填上你真正的B站视频ID !!!
-        
-        // 设定需要修改iframe的src
-        const iframe = document.getElementById('biliIframe');
-        if (iframe && YOUR_BVID !== "BV1xx411c7mD") {
-            iframe.src = `//player.bilibili.com/player.html?bvid=${YOUR_BVID}&page=1&autoplay=1`;
-        } else if (iframe && YOUR_BVID === "BV1xx411c7mD") {
-            console.warn("⚠️ 请把代码中的 YOUR_BVID 替换成你自己的B站视频ID，否则别人看到的是示例视频");
-            // 保留示例，但仍然可用只是展示示例视频
-        }
-        
-        // 文字内容 (夸张粉色 + 满屏乱飞)
+        // ----------------------------------------------
+        // 塔菲主题核心：极度夸张的粉色文字库
         const MESSAGES = [
             "关注塔菲喵 💖",
-            "关注塔菲谢谢喵 🐾",
-            "塔菲爱你哟 🎀",
-            "关注塔菲喵✨",
-            "塔菲最最可爱!",
-            "关注塔菲谢谢喵🌸",
+            "关注塔菲谢谢喵 🎀",
+            "塔菲爱你哟 🐾",
+            "立刻关注塔菲喵✨",
+            "塔菲最最可爱!🌸",
+            "关注塔菲谢谢喵🍬",
             "塔菲公主降临💕",
-            "立刻关注塔菲喵!",
             "喵喵喵~关注塔菲",
             "塔菲带你飞🐱🎈",
-            "关注塔菲谢谢喵🍬",
             "塔菲脑婆!❤️",
             "关注塔菲不迷路",
             "塔菲超绝かわいい",
             "每只喵都要关注塔菲",
             "塔菲能量注入💗",
             "谢谢喵~关注喵",
-            "塔菲踩踩👣关注喵"
+            "塔菲踩踩👣关注喵",
+            "塔菲永相随 💓",
+            "关注塔菲谢谢喵⭐",
+            "💖塔菲天下第一💖",
+            "🐱关注塔菲谢谢喵🐱"
         ];
         
-        // 设置一共生成多少飞舞大字 (营造夸张满屏效果)
-        const WORD_COUNT = 70;   // 70个足够疯狂，也可调整为50~90
+        // 配置数量: 满屏乱飞数量足够夸张 (80个大字)
+        const WORD_COUNT = 80;
         
-        let animationFrameId = null;
-        let wordsArray = [];      // 存储每个元素的DOM、速度、位置等信息
+        let wordsData = [];           // 存储每个字的DOM + 运动数据
+        let animFrameId = null;
         let containerWidth = window.innerWidth;
         let containerHeight = window.innerHeight;
+        let isPartyActive = false;    // 是否已经开启大字狂欢
+        let resizeFlag = false;
         
-        // 获取容器
         const videoContainer = document.getElementById('videoContainer');
         const floatingContainer = document.getElementById('floatingContainer');
+        const closeBtn = document.getElementById('taffyCloseBtn');
         
-        // 标志位: 是否已经触发过狂欢模式 (避免重复生成)
-        let isPartyActive = false;
-        
-        // ----------------------------------------------
-        // 生成随机数范围
+        // 辅助: 随机范围
         function randomRange(min, max) {
             return min + Math.random() * (max - min);
         }
         
-        // 随机抽取一句夸张标语
-        function getRandomMessage() {
+        // 随机获取一句疯狂标语
+        function getRandomPhrase() {
             return MESSAGES[Math.floor(Math.random() * MESSAGES.length)];
         }
         
-        // 随机获取尺寸级别 (让夸张更有层次)
-        function getSizeClass() {
+        // 随机尺寸等级 (让层次更夸张)
+        function getRandomSizeClass() {
             const r = Math.random();
-            if (r < 0.6) return '';      // 普通大小 (2.8rem)
-            if (r < 0.85) return 'big';   // 更大 4rem
-            return 'giant';               // 巨型 5.5rem
+            if (r < 0.55) return '';        // 正常大小 (2.8rem)
+            if (r < 0.8) return 'big';       // 大号 (4rem)
+            return 'giant';                  // 巨无霸 (5.8rem)
         }
         
-        // 生成所有漂浮元素
-        function createFloatingWords() {
+        // 生成满屏飞舞大字 (摧毁旧的重建)
+        function generateFloatingWords() {
             if (!floatingContainer) return;
-            floatingContainer.innerHTML = ''; // 清空残留
-            wordsArray = [];
+            floatingContainer.innerHTML = '';
+            wordsData = [];
             
             for (let i = 0; i < WORD_COUNT; i++) {
-                const wordDiv = document.createElement('div');
-                wordDiv.className = 'fly-word';
-                const sizeType = getSizeClass();
-                if (sizeType) wordDiv.classList.add(sizeType);
-                // 随机粉色色值微调，让视觉更炸 (背景渐变已经够粉，再加点内联风格)
-                const brightPinkHue = 320 + (Math.random() * 20 - 10); // 310~330 粉红范围
-                wordDiv.style.background = `linear-gradient(145deg, #FF69B4, #FF1493, #FFB3D9)`;
-                wordDiv.style.backgroundClip = 'text';
-                wordDiv.style.webkitBackgroundClip = 'text';
-                wordDiv.style.color = `transparent`;
-                // 增补额外文字阴影 夸张感
-                wordDiv.style.textShadow = `0 0 18px #FF66CC, 0 0 35px #FF3388, 2px 4px 12px rgba(0,0,0,0.4)`;
-                wordDiv.innerText = getRandomMessage();
+                const wordEl = document.createElement('div');
+                wordEl.className = 'fly-word';
+                const sizeClass = getRandomSizeClass();
+                if (sizeClass) wordEl.classList.add(sizeClass);
                 
-                // 随机初始位置 (左上右下任意)
+                // 为了让每个字独一无二，渐变风格再微调(更粉嫩)
+                const gradientAngle = 120 + Math.random() * 60;
+                wordEl.style.background = `linear-gradient(${gradientAngle}deg, #FF80CC, #FF3399, #FFB3E6)`;
+                wordEl.style.backgroundClip = 'text';
+                wordEl.style.webkitBackgroundClip = 'text';
+                wordEl.style.color = 'transparent';
+                wordEl.style.textShadow = `0 0 16px #FF66AA, 0 0 30px #FF3399, 2px 4px 12px black`;
+                
+                wordEl.innerText = getRandomPhrase();
+                
+                // 随机初始位置 (全屏任意)
                 const initX = Math.random() * containerWidth;
                 const initY = Math.random() * containerHeight;
-                wordDiv.style.left = `${initX}px`;
-                wordDiv.style.top = `${initY}px`;
-                wordDiv.style.position = 'absolute';
+                wordEl.style.left = `${initX}px`;
+                wordEl.style.top = `${initY}px`;
+                wordEl.style.position = 'absolute';
                 
-                // 存储运动数据
-                const speedX = randomRange(-1.2, 1.2);
-                const speedY = randomRange(-1.2, 1.2);
-                // 个别字速度可以更风骚
-                const extraBounce = randomRange(0.6, 1.8);
+                // 随机速度 (激烈乱飞，有快有慢)
+                const vx = randomRange(-1.6, 1.6);
+                const vy = randomRange(-1.6, 1.6);
+                // 随机旋转速度
+                const rotSpeed = randomRange(-1.8, 1.8);
+                const initRot = randomRange(-12, 12);
+                wordEl.style.transform = `rotate(${initRot}deg)`;
                 
-                floatingContainer.appendChild(wordDiv);
+                floatingContainer.appendChild(wordEl);
                 
-                wordsArray.push({
-                    dom: wordDiv,
+                wordsData.push({
+                    dom: wordEl,
                     x: initX,
                     y: initY,
-                    vx: speedX * 1.4,
-                    vy: speedY * 1.4,
-                    rotation: randomRange(-8, 8),
-                    rotSpeed: randomRange(-1.2, 1.2)
+                    vx: vx,
+                    vy: vy,
+                    rotation: initRot,
+                    rotSpeed: rotSpeed,
+                    width: wordEl.offsetWidth,
+                    height: wordEl.offsetHeight
                 });
             }
             
-            // 额外额外!!! 为了保证夸张到爆炸, 再动态追加10~20个闪亮元素在后续小延迟? 一次性够满屏
-            // 但70个已经铺天盖地，但还可随机再多一点惊喜: 再补一些延迟生成微型字 但为了性能直接已全量
-            // 增加补丁: 确保在窄屏仍然铺满视觉效果，若屏幕宽度大于1200，可多生成一些但已有足够。
-            if (WORD_COUNT > 40) {
-                // 已经是很多了
-            }
+            // 二次修正宽度 (因为部分字体加载后偏移)
+            setTimeout(() => {
+                for (let w of wordsData) {
+                    if (w.dom) {
+                        w.width = w.dom.offsetWidth;
+                        w.height = w.dom.offsetHeight;
+                    }
+                }
+            }, 50);
         }
         
-        // 更新每一帧的运动 (让文字满屏幕乱飞，边界反弹)
-        function updatePositions() {
-            if (!floatingContainer) return;
-            let needsUpdate = false;
-            for (let w of wordsArray) {
-                if (!w.dom) continue;
-                // 更新坐标
-                let newX = w.x + w.vx;
-                let newY = w.y + w.vy;
+        // 更新每一帧位置 (物理乱飞 + 边界碰撞 + 旋转)
+        function updateMovement() {
+            if (!floatingContainer || wordsData.length === 0) return;
+            let needContinue = true;
+            for (let obj of wordsData) {
+                if (!obj.dom) continue;
+                let newX = obj.x + obj.vx;
+                let newY = obj.y + obj.vy;
+                const elemW = obj.width || obj.dom.offsetWidth || 80;
+                const elemH = obj.height || obj.dom.offsetHeight || 40;
                 
-                // 边界反弹 (碰到左右边界反向并随机微调速度增加调皮感)
+                // 边界反弹 + 极其调皮增加随机加速度让视觉效果更炸
                 if (newX <= 0) {
-                    newX = 0;
-                    w.vx = Math.abs(w.vx) * (0.95 + Math.random() * 0.2);
-                    // 增加粉红小特效（无需额外，直接反转）
-                    w.vx = w.vx * 1.02;
+                    newX = 2;
+                    obj.vx = Math.abs(obj.vx) * (0.92 + Math.random() * 0.2);
+                    obj.vx = Math.min(obj.vx, 2.5);
+                    // 反弹时稍微改变Y速度增加凌乱感
+                    obj.vy = obj.vy + (Math.random() - 0.5) * 0.4;
                 }
-                if (newX + w.dom.offsetWidth >= containerWidth) {
-                    newX = containerWidth - w.dom.offsetWidth;
-                    w.vx = -Math.abs(w.vx) * (0.95 + Math.random() * 0.2);
-                    w.vx = w.vx * 1.02;
+                if (newX + elemW >= containerWidth) {
+                    newX = containerWidth - elemW - 2;
+                    obj.vx = -Math.abs(obj.vx) * (0.92 + Math.random() * 0.2);
+                    obj.vx = Math.max(obj.vx, -2.5);
+                    obj.vy = obj.vy + (Math.random() - 0.5) * 0.4;
                 }
                 if (newY <= 0) {
-                    newY = 0;
-                    w.vy = Math.abs(w.vy) * (0.95 + Math.random() * 0.2);
+                    newY = 2;
+                    obj.vy = Math.abs(obj.vy) * (0.92 + Math.random() * 0.2);
+                    obj.vx = obj.vx + (Math.random() - 0.5) * 0.4;
                 }
-                if (newY + w.dom.offsetHeight >= containerHeight) {
-                    newY = containerHeight - w.dom.offsetHeight;
-                    w.vy = -Math.abs(w.vy) * (0.95 + Math.random() * 0.2);
-                }
-                
-                // 限制最大速度避免飞出银河 但依然保持疯狂感
-                const maxSpeed = 3.2;
-                if (Math.abs(w.vx) > maxSpeed) w.vx = w.vx > 0 ? maxSpeed : -maxSpeed;
-                if (Math.abs(w.vy) > maxSpeed) w.vy = w.vy > 0 ? maxSpeed : -maxSpeed;
-                
-                w.x = newX;
-                w.y = newY;
-                
-                // 更新Dom位置
-                w.dom.style.left = `${w.x}px`;
-                w.dom.style.top = `${w.y}px`;
-                
-                // 让文字轻微自旋转，更有“乱飞”感
-                if (w.rotation !== undefined) {
-                    let newRot = (w.rotation || 0) + (w.rotSpeed || 0.6);
-                    w.rotation = newRot;
-                    w.dom.style.transform = `rotate(${newRot % 360}deg)`;
+                if (newY + elemH >= containerHeight) {
+                    newY = containerHeight - elemH - 2;
+                    obj.vy = -Math.abs(obj.vy) * (0.92 + Math.random() * 0.2);
+                    obj.vx = obj.vx + (Math.random() - 0.5) * 0.4;
                 }
                 
-                // 随机闪烁（可选小特效）: 动态改变透明度/缩放, 但是太重就不做过多, 但为了夸张可轻微呼吸
-                // 为了极致体验，偶尔变更文本颜色？ 不，背景渐变一直在，非常炸
+                // 限速但保持疯狂 (最大速度2.8)
+                const maxSpeed = 2.8;
+                obj.vx = Math.min(maxSpeed, Math.max(-maxSpeed, obj.vx));
+                obj.vy = Math.min(maxSpeed, Math.max(-maxSpeed, obj.vy));
+                
+                obj.x = newX;
+                obj.y = newY;
+                obj.dom.style.left = `${obj.x}px`;
+                obj.dom.style.top = `${obj.y}px`;
+                
+                // 旋转更新 (让文字飞行中翻转)
+                let newRot = (obj.rotation || 0) + (obj.rotSpeed || 0.6);
+                obj.rotation = newRot;
+                obj.dom.style.transform = `rotate(${newRot % 360}deg)`;
             }
-            animationFrameId = requestAnimationFrame(updatePositions);
+            
+            animFrameId = requestAnimationFrame(updateMovement);
         }
         
-        // 监听窗口尺寸变化，重置所有元素边界尺寸，防止飞出范围
-        function handleResize() {
+        // 重置所有文字边界(窗口改变时重新适配)
+        function handleWindowResize() {
             containerWidth = window.innerWidth;
             containerHeight = window.innerHeight;
-            if (!wordsArray.length) return;
-            for (let w of wordsArray) {
+            if (!wordsData.length) return;
+            for (let w of wordsData) {
                 if (!w.dom) continue;
-                // 边界钳制，避免之前旧尺寸导致错位
-                let clampedX = Math.min(Math.max(w.x, 0), containerWidth - w.dom.offsetWidth);
-                let clampedY = Math.min(Math.max(w.y, 0), containerHeight - w.dom.offsetHeight);
-                if (clampedX !== w.x) w.x = clampedX;
-                if (clampedY !== w.y) w.y = clampedY;
+                w.width = w.dom.offsetWidth;
+                w.height = w.dom.offsetHeight;
+                let newX = Math.min(Math.max(w.x, 2), containerWidth - w.width - 2);
+                let newY = Math.min(Math.max(w.y, 2), containerHeight - w.height - 2);
+                if (newX !== w.x) {
+                    w.x = newX;
+                    w.vx = -w.vx * 0.95;
+                }
+                if (newY !== w.y) {
+                    w.y = newY;
+                    w.vy = -w.vy * 0.95;
+                }
                 w.dom.style.left = `${w.x}px`;
                 w.dom.style.top = `${w.y}px`;
-                // 如果因为尺寸变化字超出边界，修正速度方向
-                if (w.x <= 0 || w.x + w.dom.offsetWidth >= containerWidth) w.vx = -w.vx;
-                if (w.y <= 0 || w.y + w.dom.offsetHeight >= containerHeight) w.vy = -w.vy;
             }
         }
         
-        // 启动满屏粉色大字乱飞盛宴
-        function startPinkParty() {
+        // 启动粉色大字狂欢派对 (隐藏视频 + 生成文字 + 乱飞)
+        function startTaffyParty() {
             if (isPartyActive) return;
             isPartyActive = true;
             
-            // 隐藏视频容器（优雅消失）
-            if (videoContainer) {
-                videoContainer.classList.add('hidden');
-            }
-            
-            // 生成疯狂文字DOM
-            createFloatingWords();
-            
-            // 确保容器尺寸重新获取
-            containerWidth = window.innerWidth;
-            containerHeight = window.innerHeight;
-            handleResize();    // 立即修正边界
-            
-            // 启动动画循环 (满屏飞舞)
-            if (animationFrameId) cancelAnimationFrame(animationFrameId);
-            animationFrameId = requestAnimationFrame(updatePositions);
-            
-            // 额外增加一个“塔菲喵”音效感？不需要声音但视觉重击。再加额外脉冲: 每隔2秒随机让几个字临时变大
-            // 为了让效果更炸，增加间隔随机巨型膨胀。
-            let intervalCount = 0;
-            const pulseInterval = setInterval(() => {
-                if (!isPartyActive) {
-                    clearInterval(pulseInterval);
-                    return;
-                }
-                // 随机抽取10个文字瞬间放大1.5倍持续0.2秒再复原 (调皮夸张)
-                if (wordsArray.length) {
-                    const shuffleIndices = [...Array(wordsArray.length).keys()].sort(() => 0.5 - Math.random());
-                    for (let i = 0; i < Math.min(12, wordsArray.length); i++) {
-                        const item = wordsArray[shuffleIndices[i]];
-                        if (item && item.dom) {
-                            const originalTransition = item.dom.style.transition;
-                            item.dom.style.transition = 'transform 0.12s cubic-bezier(0.4, 1.3, 0.6, 1)';
-                            item.dom.style.transform = `scale(1.45) rotate(${(item.rotation || 0) + 4}deg)`;
-                            setTimeout(() => {
-                                if (item.dom) {
-                                    item.dom.style.transform = `rotate(${(item.rotation || 0)}deg)`;
-                                    item.dom.style.transition = originalTransition || '';
-                                }
-                            }, 120);
-                        }
-                    }
-                }
-                // 此外每隔3秒换一些文本 (更夸张动态)
-                if (Math.random() > 0.6) {
-                    const randomWord = wordsArray[Math.floor(Math.random() * wordsArray.length)];
-                    if (randomWord && randomWord.dom) {
-                        randomWord.dom.innerText = MESSAGES[Math.floor(Math.random() * MESSAGES.length)] + " 💖";
-                        setTimeout(() => {
-                            if(randomWord.dom) randomWord.dom.style.textShadow = "0 0 25px #ff3399";
-                        }, 50);
-                    }
-                }
-            }, 800);
-            
-            // 存储interval以便未来清理 (但永久狂欢，除非刷新页面)
-            window.__pinkPartyInterval = pulseInterval;
-        }
-        
-        // ------------- 监听用户关闭视频的行为 -------------
-        // 如何判定用户“关掉视频”？ 在B站iframe中，用户全屏返回或者点击关闭？ 没有直接API知道iframe内部动作。
-        // 但是更优雅的方案：感知 iframe 失去焦点或监听页面可见性？ 但最直接方式：用户如果关视频代表离开B站播放器，
-        // 更好的方式是监听用户点击网页任意位置并且视频容器隐藏？ 不符合直觉。
-        // 换一种交互: 提供一个优雅的悬浮关闭按钮（大粉色XX）点击后关闭视频显示满屏大字。不过为了满足“当用户把视频关掉之后”
-        // 更符合直觉：增加一个醒目的粉红关闭按钮“✖ 关掉视频看塔菲大字 ✖”，用户主动关掉视频之后呈现满屏飞字，完全符合需求。
-        // 也有一种场景: 用户手动从B站播放器里关掉视频流没法完美捕获。但我们可以设计一个漂亮醒目的“关掉视频，接受塔菲喵能量”按钮，点击后关闭视频区并触发狂欢！
-        // 这样才是最稳定的，并且用户可以主动关掉视频，展示满屏粉色大字乱飞。
-        
-        // 创建一个精美且夸张的关闭按钮（视频内层右上角，粉色大颗）
-        const closeBtn = document.createElement('div');
-        closeBtn.innerHTML = '💗 关掉视频 · 塔菲降临 💗';
-        closeBtn.style.position = 'fixed';
-        closeBtn.style.top = '24px';
-        closeBtn.style.right = '24px';
-        closeBtn.style.zIndex = '25';
-        closeBtn.style.background = 'linear-gradient(145deg, #ff3399, #ff66cc)';
-        closeBtn.style.color = 'white';
-        closeBtn.style.fontWeight = 'bold';
-        closeBtn.style.fontSize = '1.2rem';
-        closeBtn.style.padding = '12px 24px';
-        closeBtn.style.borderRadius = '60px';
-        closeBtn.style.boxShadow = '0 0 20px #ff66aa, 0 5px 15px rgba(0,0,0,0.3)';
-        closeBtn.style.cursor = 'pointer';
-        closeBtn.style.fontFamily = 'inherit';
-        closeBtn.style.backdropFilter = 'blur(12px)';
-        closeBtn.style.border = '2px solid #fff3b0';
-        closeBtn.style.textShadow = '0 1px 2px #c72a7a';
-        closeBtn.style.transition = 'transform 0.2s ease';
-        closeBtn.style.letterSpacing = '2px';
-        closeBtn.onmouseenter = () => closeBtn.style.transform = 'scale(1.05)';
-        closeBtn.onmouseleave = () => closeBtn.style.transform = 'scale(1)';
-        
-        // 点击关闭按钮：隐藏视频区，释放粉色大字狂潮
-        closeBtn.addEventListener('click', () => {
-            if (isPartyActive) return; // 避免重复生成
-            // 隐藏视频容器
+            // 隐藏视频容器，优雅消失
             if (videoContainer && !videoContainer.classList.contains('hidden')) {
                 videoContainer.classList.add('hidden');
             }
-            // 开启疯字派对
-            startPinkParty();
-        });
-        
-        // 将按钮添加到body
-        document.body.appendChild(closeBtn);
-        
-        // 额外保护: 如果用户因为意外一直没有点关闭，也可以允许，但体验上按钮就在右上角，很夸张。
-        // 如果视频容器已经隐藏(比如直接调用)，也可以
-        // 监听页面关闭前暂停动画（无用不影响）
-        window.addEventListener('beforeunload', () => {
-            if (animationFrameId) cancelAnimationFrame(animationFrameId);
-        });
-        
-        // 调整尺寸监听
-        window.addEventListener('resize', () => {
-            handleResize();
-        });
-        
-        // 初始化保证容器高度等
-        setTimeout(() => {
+            
+            // 清空之前的动画与文字，全新生成超多乱飞大字
+            if (animFrameId) {
+                cancelAnimationFrame(animFrameId);
+                animFrameId = null;
+            }
+            
+            // 重新生成满屏文字
             containerWidth = window.innerWidth;
             containerHeight = window.innerHeight;
-        }, 200);
+            generateFloatingWords();
+            handleWindowResize();  // 边界适配
+            
+            // 启动动画帧循环
+            animFrameId = requestAnimationFrame(updateMovement);
+            
+            // 额外极度夸张特效：每隔1.2秒随机抽取10~15个文字放大闪烁+更换文字 (让画面更闹腾)
+            let extraInterval = setInterval(() => {
+                if (!isPartyActive) {
+                    clearInterval(extraInterval);
+                    return;
+                }
+                if (wordsData.length === 0) return;
+                // 随机选 12~20 个字做膨胀特效
+                const countToAnimate = Math.min(18, wordsData.length);
+                const shuffled = [...wordsData].sort(() => 0.5 - Math.random());
+                for (let i = 0; i < countToAnimate; i++) {
+                    const target = shuffled[i];
+                    if (target && target.dom) {
+                        // 记录原本transform 但保留旋转
+                        const originalTransition = target.dom.style.transition;
+                        target.dom.style.transition = 'transform 0.12s ease, text-shadow 0.1s';
+                        target.dom.style.transform = `rotate(${(target.rotation || 0) + 6}deg) scale(1.45)`;
+                        target.dom.style.textShadow = "0 0 26px #ff55cc, 0 0 40px #ff44aa";
+                        setTimeout(() => {
+                            if (target.dom && isPartyActive) {
+                                target.dom.style.transform = `rotate(${(target.rotation || 0)}deg) scale(1)`;
+                                target.dom.style.textShadow = "0 0 16px #FF66AA, 0 0 30px #FF3399";
+                                target.dom.style.transition = originalTransition || '';
+                            }
+                        }, 130);
+                        
+                        // 有概率改变文字内容增加塔菲疯魔
+                        if (Math.random() > 0.65) {
+                            const originalText = target.dom.innerText;
+                            const newText = getRandomPhrase();
+                            if (Math.random() > 0.3) target.dom.innerText = newText + " 💖";
+                            else target.dom.innerText = newText;
+                            // 但之后也可以恢复，但不必，让大字库自由更换更有活力
+                            setTimeout(() => {
+                                if (target.dom && Math.random() > 0.7 && isPartyActive) {
+                                    target.dom.innerText = getRandomPhrase();
+                                }
+                            }, 600);
+                        }
+                    }
+                }
+                // 并且偶尔让个别字速度突变(调皮)
+                for (let k = 0; k < 8; k++) {
+                    const randomWord = wordsData[Math.floor(Math.random() * wordsData.length)];
+                    if (randomWord) {
+                        randomWord.vx += (Math.random() - 0.5) * 0.7;
+                        randomWord.vy += (Math.random() - 0.5) * 0.7;
+                        randomWord.vx = Math.min(2.8, Math.max(-2.8, randomWord.vx));
+                        randomWord.vy = Math.min(2.8, Math.max(-2.8, randomWord.vy));
+                    }
+                }
+            }, 1000);
+            
+            // 将interval存在window上以备不时之需（不用清理也可，但页面关闭自动清除）
+            window.__taffyInterval = extraInterval;
+        }
         
-        // 如果B站视频自动播放后用户可任意点击“关闭视频按钮”触发满屏粉色塔菲大字乱飞。
-        // 完全满足要求: 夸张粉色大字 + 多个 + 满屏乱飞 + 粉色主题。
-        console.log("✅ 粉红塔菲世界已准备，点击右上角『关掉视频·塔菲降临』立刻触发万字狂欢！");
+        // 绑定关闭按钮事件: 触发塔菲降临，同时确保视频关闭 + 粉色乱飞
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                if (isPartyActive) {
+                    // 如果已经激活, 但再按一次也无妨，不再重复生成但是可以额外增加更多文字来巩固疯狂
+                    if (wordsData.length < 120) {
+                        // 补一波额外大字，让屏幕更拥挤 (增加20个)
+                        const extraCount = 25;
+                        for (let i = 0; i < extraCount; i++) {
+                            const wordEl = document.createElement('div');
+                            wordEl.className = 'fly-word';
+                            const randSize = getRandomSizeClass();
+                            if (randSize) wordEl.classList.add(randSize);
+                            wordEl.style.background = `linear-gradient(${120 + Math.random() * 60}deg, #FF80CC, #FF3399, #FFB3E6)`;
+                            wordEl.style.backgroundClip = 'text';
+                            wordEl.style.webkitBackgroundClip = 'text';
+                            wordEl.style.color = 'transparent';
+                            wordEl.innerText = getRandomPhrase();
+                            const initX = Math.random() * containerWidth;
+                            const initY = Math.random() * containerHeight;
+                            wordEl.style.left = `${initX}px`;
+                            wordEl.style.top = `${initY}px`;
+                            wordEl.style.position = 'absolute';
+                            floatingContainer.appendChild(wordEl);
+                            wordsData.push({
+                                dom: wordEl,
+                                x: initX,
+                                y: initY,
+                                vx: randomRange(-1.6, 1.6),
+                                vy: randomRange(-1.6, 1.6),
+                                rotation: randomRange(-12, 12),
+                                rotSpeed: randomRange(-1.6, 1.6),
+                                width: wordEl.offsetWidth,
+                                height: wordEl.offsetHeight
+                            });
+                        }
+                    }
+                    return;
+                }
+                // 首次启动狂欢派对
+                startTaffyParty();
+            });
+        }
+        
+        // 窗口尺寸变化监听
+        window.addEventListener('resize', () => {
+            containerWidth = window.innerWidth;
+            containerHeight = window.innerHeight;
+            if (isPartyActive && wordsData.length) {
+                handleWindowResize();
+            }
+        });
+        
+        // 预加载平滑处理，保证关闭视频按钮一直在可见区
+        // 另外页面加载时如果用户想要直接点击按钮,完美触发, 且视频自动播放B站内容
+        // 最终满足: 用户看完视频或任意时刻点击“关掉视频·塔菲降临” -> 隐藏B站视频 -> 满屏粉色夸张大字乱飞，文字内容全是“关注塔菲喵 关注塔菲谢谢喵”变体
+        
+        // 额外细节: 如果视频容器已经关闭后再也没有视频，按钮会继续喷射新的文字，完美符合需求
+        console.log("✨ 塔菲喵能量就绪，点击右上角粉红按钮立刻触发满屏乱飞大字 ✨");
     })();
 </script>
 </body>
 </html>
+```
