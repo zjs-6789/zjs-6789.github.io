@@ -1,235 +1,510 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>我的待办清单</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>塔菲喵·满屏粉色弹幕</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            user-select: none; /* 避免拖动文字时选中，更干净 */
         }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #0d0b1a;  /* 深紫黑底，衬托粉色荧光 */
+            font-family: system-ui, 'Segoe UI', 'Poppins', 'Comic Neue', 'Microsoft YaHei', cursive;
         }
-        .todo-container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            width: 400px;
-            max-width: 90%;
-            padding: 30px;
+
+        /* --- 视频容器: 全屏覆盖，默认显示 --- */
+        .video-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            background: #000;
+            transition: opacity 0.45s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            opacity: 1;
+            visibility: visible;
         }
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #333;
+
+        /* 视频关闭后隐藏视频区域 */
+        .video-container.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
         }
-        .input-area {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
-        }
-        #taskInput {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 25px;
-            font-size: 16px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        #taskInput:focus {
-            border-color: #0066cc;
-        }
-        #addBtn {
-            background: #0066cc;
-            color: white;
+
+        /* B站iframe占满全屏 */
+        .bilibili-frame {
+            width: 100%;
+            height: 100%;
             border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            font-size: 24px;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
+            background: #000;
         }
-        #addBtn:hover {
-            background: #0052a3;
+
+        /* ---------- 粉色大字乱飞的世界 ---------- */
+        .floating-words-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 20;
+            pointer-events: none;  /* 让文字不干扰点击，但本身也不需要点击 */
+            overflow: hidden;
         }
-        #addBtn:active {
-            transform: scale(0.95);
+
+        /* 单个飞舞大字卡牌风格 */
+        .fly-word {
+            position: absolute;
+            white-space: nowrap;
+            font-weight: 900;
+            font-size: 2.8rem;
+            letter-spacing: 0.04em;
+            text-shadow: 0 0 12px #ff99cc, 0 0 25px #ff66aa, 0 4px 12px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, #FF69B4, #FF1493, #FFB6C1);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            text-stroke: 1px #ffc0cb;
+            -webkit-text-stroke: 1px rgba(255, 192, 203, 0.6);
+            will-change: transform, opacity;
+            filter: drop-shadow(0 8px 18px rgba(255, 20, 147, 0.5));
+            font-family: 'Segoe UI', 'Poppins', 'Comic Neue', 'Microsoft YaHei', cursive;
+            animation: floatGlow 0.3s ease-out;
+            transition: transform 0.05s linear;
+            /* 保证文字在任何背景下都极度抢眼 */
+            mix-blend-mode: normal;
         }
-        .task-list {
-            list-style: none;
+        
+        /* 额外追加几种不同大小的夸张变体 */
+        .fly-word.big {
+            font-size: 4rem;
+            font-weight: 900;
+            text-shadow: 0 0 20px #ff66aa, 0 0 35px #ff3388;
         }
-        .task-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 10px;
-            background: #fafafa;
-            border-radius: 30px;
-            margin-bottom: 10px;
-            animation: fadeIn 0.3s;
+        .fly-word.small {
+            font-size: 2rem;
+            font-weight: 800;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .fly-word.giant {
+            font-size: 5.5rem;
+            letter-spacing: 0.08em;
         }
-        .task-item.completed .task-text {
-            text-decoration: line-through;
-            color: #888;
+
+        /* 可爱的呼吸闪烁动画 */
+        @keyframes floatGlow {
+            0% {
+                opacity: 0;
+                transform: scale(0.7) rotate(-5deg);
+                filter: blur(4px);
+            }
+            70% {
+                transform: scale(1.05) rotate(2deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+                filter: blur(0);
+            }
         }
-        .task-text {
-            flex: 1;
-            font-size: 16px;
-            margin: 0 10px;
-            word-break: break-word;
+
+        /* 可选：一个极小角落的装饰提示(可选不影响主旨) */
+        .hint-reminder {
+            position: fixed;
+            bottom: 18px;
+            right: 20px;
+            z-index: 30;
+            font-size: 13px;
+            background: rgba(255, 105, 180, 0.75);
+            backdrop-filter: blur(10px);
+            padding: 6px 14px;
+            border-radius: 40px;
+            color: #fff3f9;
+            font-weight: bold;
+            pointer-events: none;
+            font-family: monospace;
+            border: 1px solid #ffb6e1;
+            box-shadow: 0 0 12px hotpink;
         }
-        .task-checkbox {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
+
+        /* 移动端略微调整大字大小避免过于拥挤 */
+        @media (max-width: 680px) {
+            .fly-word {
+                font-size: 1.8rem;
+            }
+            .fly-word.big {
+                font-size: 2.8rem;
+            }
+            .fly-word.giant {
+                font-size: 3.3rem;
+            }
         }
-        .delete-btn {
-            background: none;
-            border: none;
-            color: #ff4444;
-            font-size: 20px;
-            cursor: pointer;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: background 0.2s;
-        }
-        .delete-btn:hover {
-            background: rgba(255, 68, 68, 0.1);
-        }
-        .stats {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-            color: #777;
-            font-size: 14px;
-        }
-        #clearCompleted {
-            background: none;
-            border: none;
-            color: #0066cc;
-            cursor: pointer;
-            font-size: 14px;
-            text-decoration: underline;
-        }
-        #clearCompleted:hover {
-            color: #0052a3;
-        }
+
+        /* 确保文字层在视频上层且全部可见 */
     </style>
 </head>
 <body>
-    <div class="todo-container">
-        <h1>✅ 我的待办清单</h1>
-        <div class="input-area">
-            <input type="text" id="taskInput" placeholder="输入新任务...">
-            <button id="addBtn">+</button>
-        </div>
-        <ul class="task-list" id="taskList"></ul>
-        <div class="stats">
-            <span id="taskCount">0 个任务</span>
-            <button id="clearCompleted">清除已完成</button>
-        </div>
-    </div>
 
-    <script>
-        // 从本地存储加载任务
-        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+<!-- 视频区域: 承载B站iframe -->
+<div class="video-container" id="videoContainer">
+    <iframe 
+        class="bilibili-frame"
+        id="biliIframe"
+        src="//player.bilibili.com/player.html?bvid=BV1xx411c7mD&page=1&autoplay=1"
+        allow="autoplay; fullscreen"
+        allowfullscreen>
+    </iframe>
+</div>
 
-        const taskListEl = document.getElementById('taskList');
-        const taskInput = document.getElementById('taskInput');
-        const addBtn = document.getElementById('addBtn');
-        const taskCountEl = document.getElementById('taskCount');
-        const clearCompletedBtn = document.getElementById('clearCompleted');
+<!-- 漂浮大字容器: 初始为空，视频关闭后才会填满飞舞 -->
+<div class="floating-words-container" id="floatingContainer"></div>
+<div class="hint-reminder">🎀 塔菲永相随 🎀</div>
 
-        // 保存任务到本地存储
-        function saveTasks() {
-            localStorage.setItem('tasks', JSON.stringify(tasks));
+<script>
+    (function() {
+        // ----------------- 配置区域 -----------------
+        // 请替换成你的真实B站视频ID (目前示例 BV1xx411c7mD)
+        // 注意: 实际使用时，需要将下面链接中的 BV1xx411c7mD 换成你自己B站视频的ID!!
+        // 例如: 你的B站视频网址是 https://www.bilibili.com/video/BV1Fy4y1n7jM ，则bvid = "BV1Fy4y1n7jM"
+        const YOUR_BVID = "BV1xx411c7mD";   // <<<----- 在这里填上你真正的B站视频ID !!!
+        
+        // 设定需要修改iframe的src
+        const iframe = document.getElementById('biliIframe');
+        if (iframe && YOUR_BVID !== "BV1xx411c7mD") {
+            iframe.src = `//player.bilibili.com/player.html?bvid=${YOUR_BVID}&page=1&autoplay=1`;
+        } else if (iframe && YOUR_BVID === "BV1xx411c7mD") {
+            console.warn("⚠️ 请把代码中的 YOUR_BVID 替换成你自己的B站视频ID，否则别人看到的是示例视频");
+            // 保留示例，但仍然可用只是展示示例视频
         }
-
-        // 渲染任务列表
-        function renderTasks() {
-            taskListEl.innerHTML = '';
-            tasks.forEach((task, index) => {
-                const li = document.createElement('li');
-                li.className = `task-item ${task.completed ? 'completed' : ''}`;
-                li.innerHTML = `
-                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} data-index="${index}">
-                    <span class="task-text">${task.text}</span>
-                    <button class="delete-btn" data-index="${index}">&times;</button>
-                `;
-                taskListEl.appendChild(li);
-            });
-            // 更新任务数量
-            const total = tasks.length;
-            const completedCount = tasks.filter(t => t.completed).length;
-            taskCountEl.textContent = `${total} 个任务 (已完成 ${completedCount})`;
+        
+        // 文字内容 (夸张粉色 + 满屏乱飞)
+        const MESSAGES = [
+            "关注塔菲喵 💖",
+            "关注塔菲谢谢喵 🐾",
+            "塔菲爱你哟 🎀",
+            "关注塔菲喵✨",
+            "塔菲最最可爱!",
+            "关注塔菲谢谢喵🌸",
+            "塔菲公主降临💕",
+            "立刻关注塔菲喵!",
+            "喵喵喵~关注塔菲",
+            "塔菲带你飞🐱🎈",
+            "关注塔菲谢谢喵🍬",
+            "塔菲脑婆!❤️",
+            "关注塔菲不迷路",
+            "塔菲超绝かわいい",
+            "每只喵都要关注塔菲",
+            "塔菲能量注入💗",
+            "谢谢喵~关注喵",
+            "塔菲踩踩👣关注喵"
+        ];
+        
+        // 设置一共生成多少飞舞大字 (营造夸张满屏效果)
+        const WORD_COUNT = 70;   // 70个足够疯狂，也可调整为50~90
+        
+        let animationFrameId = null;
+        let wordsArray = [];      // 存储每个元素的DOM、速度、位置等信息
+        let containerWidth = window.innerWidth;
+        let containerHeight = window.innerHeight;
+        
+        // 获取容器
+        const videoContainer = document.getElementById('videoContainer');
+        const floatingContainer = document.getElementById('floatingContainer');
+        
+        // 标志位: 是否已经触发过狂欢模式 (避免重复生成)
+        let isPartyActive = false;
+        
+        // ----------------------------------------------
+        // 生成随机数范围
+        function randomRange(min, max) {
+            return min + Math.random() * (max - min);
         }
-
-        // 添加新任务
-        function addTask() {
-            const text = taskInput.value.trim();
-            if (text) {
-                tasks.push({ text, completed: false });
-                saveTasks();
-                renderTasks();
-                taskInput.value = '';
+        
+        // 随机抽取一句夸张标语
+        function getRandomMessage() {
+            return MESSAGES[Math.floor(Math.random() * MESSAGES.length)];
+        }
+        
+        // 随机获取尺寸级别 (让夸张更有层次)
+        function getSizeClass() {
+            const r = Math.random();
+            if (r < 0.6) return '';      // 普通大小 (2.8rem)
+            if (r < 0.85) return 'big';   // 更大 4rem
+            return 'giant';               // 巨型 5.5rem
+        }
+        
+        // 生成所有漂浮元素
+        function createFloatingWords() {
+            if (!floatingContainer) return;
+            floatingContainer.innerHTML = ''; // 清空残留
+            wordsArray = [];
+            
+            for (let i = 0; i < WORD_COUNT; i++) {
+                const wordDiv = document.createElement('div');
+                wordDiv.className = 'fly-word';
+                const sizeType = getSizeClass();
+                if (sizeType) wordDiv.classList.add(sizeType);
+                // 随机粉色色值微调，让视觉更炸 (背景渐变已经够粉，再加点内联风格)
+                const brightPinkHue = 320 + (Math.random() * 20 - 10); // 310~330 粉红范围
+                wordDiv.style.background = `linear-gradient(145deg, #FF69B4, #FF1493, #FFB3D9)`;
+                wordDiv.style.backgroundClip = 'text';
+                wordDiv.style.webkitBackgroundClip = 'text';
+                wordDiv.style.color = `transparent`;
+                // 增补额外文字阴影 夸张感
+                wordDiv.style.textShadow = `0 0 18px #FF66CC, 0 0 35px #FF3388, 2px 4px 12px rgba(0,0,0,0.4)`;
+                wordDiv.innerText = getRandomMessage();
+                
+                // 随机初始位置 (左上右下任意)
+                const initX = Math.random() * containerWidth;
+                const initY = Math.random() * containerHeight;
+                wordDiv.style.left = `${initX}px`;
+                wordDiv.style.top = `${initY}px`;
+                wordDiv.style.position = 'absolute';
+                
+                // 存储运动数据
+                const speedX = randomRange(-1.2, 1.2);
+                const speedY = randomRange(-1.2, 1.2);
+                // 个别字速度可以更风骚
+                const extraBounce = randomRange(0.6, 1.8);
+                
+                floatingContainer.appendChild(wordDiv);
+                
+                wordsArray.push({
+                    dom: wordDiv,
+                    x: initX,
+                    y: initY,
+                    vx: speedX * 1.4,
+                    vy: speedY * 1.4,
+                    rotation: randomRange(-8, 8),
+                    rotSpeed: randomRange(-1.2, 1.2)
+                });
+            }
+            
+            // 额外额外!!! 为了保证夸张到爆炸, 再动态追加10~20个闪亮元素在后续小延迟? 一次性够满屏
+            // 但70个已经铺天盖地，但还可随机再多一点惊喜: 再补一些延迟生成微型字 但为了性能直接已全量
+            // 增加补丁: 确保在窄屏仍然铺满视觉效果，若屏幕宽度大于1200，可多生成一些但已有足够。
+            if (WORD_COUNT > 40) {
+                // 已经是很多了
             }
         }
-
-        // 处理复选框点击（完成/未完成）
-        taskListEl.addEventListener('change', (e) => {
-            if (e.target.classList.contains('task-checkbox')) {
-                const index = e.target.dataset.index;
-                tasks[index].completed = e.target.checked;
-                saveTasks();
-                renderTasks();
+        
+        // 更新每一帧的运动 (让文字满屏幕乱飞，边界反弹)
+        function updatePositions() {
+            if (!floatingContainer) return;
+            let needsUpdate = false;
+            for (let w of wordsArray) {
+                if (!w.dom) continue;
+                // 更新坐标
+                let newX = w.x + w.vx;
+                let newY = w.y + w.vy;
+                
+                // 边界反弹 (碰到左右边界反向并随机微调速度增加调皮感)
+                if (newX <= 0) {
+                    newX = 0;
+                    w.vx = Math.abs(w.vx) * (0.95 + Math.random() * 0.2);
+                    // 增加粉红小特效（无需额外，直接反转）
+                    w.vx = w.vx * 1.02;
+                }
+                if (newX + w.dom.offsetWidth >= containerWidth) {
+                    newX = containerWidth - w.dom.offsetWidth;
+                    w.vx = -Math.abs(w.vx) * (0.95 + Math.random() * 0.2);
+                    w.vx = w.vx * 1.02;
+                }
+                if (newY <= 0) {
+                    newY = 0;
+                    w.vy = Math.abs(w.vy) * (0.95 + Math.random() * 0.2);
+                }
+                if (newY + w.dom.offsetHeight >= containerHeight) {
+                    newY = containerHeight - w.dom.offsetHeight;
+                    w.vy = -Math.abs(w.vy) * (0.95 + Math.random() * 0.2);
+                }
+                
+                // 限制最大速度避免飞出银河 但依然保持疯狂感
+                const maxSpeed = 3.2;
+                if (Math.abs(w.vx) > maxSpeed) w.vx = w.vx > 0 ? maxSpeed : -maxSpeed;
+                if (Math.abs(w.vy) > maxSpeed) w.vy = w.vy > 0 ? maxSpeed : -maxSpeed;
+                
+                w.x = newX;
+                w.y = newY;
+                
+                // 更新Dom位置
+                w.dom.style.left = `${w.x}px`;
+                w.dom.style.top = `${w.y}px`;
+                
+                // 让文字轻微自旋转，更有“乱飞”感
+                if (w.rotation !== undefined) {
+                    let newRot = (w.rotation || 0) + (w.rotSpeed || 0.6);
+                    w.rotation = newRot;
+                    w.dom.style.transform = `rotate(${newRot % 360}deg)`;
+                }
+                
+                // 随机闪烁（可选小特效）: 动态改变透明度/缩放, 但是太重就不做过多, 但为了夸张可轻微呼吸
+                // 为了极致体验，偶尔变更文本颜色？ 不，背景渐变一直在，非常炸
             }
-        });
-
-        // 处理删除按钮
-        taskListEl.addEventListener('click', (e) => {
-            if (e.target.classList.contains('delete-btn')) {
-                const index = e.target.dataset.index;
-                tasks.splice(index, 1);
-                saveTasks();
-                renderTasks();
+            animationFrameId = requestAnimationFrame(updatePositions);
+        }
+        
+        // 监听窗口尺寸变化，重置所有元素边界尺寸，防止飞出范围
+        function handleResize() {
+            containerWidth = window.innerWidth;
+            containerHeight = window.innerHeight;
+            if (!wordsArray.length) return;
+            for (let w of wordsArray) {
+                if (!w.dom) continue;
+                // 边界钳制，避免之前旧尺寸导致错位
+                let clampedX = Math.min(Math.max(w.x, 0), containerWidth - w.dom.offsetWidth);
+                let clampedY = Math.min(Math.max(w.y, 0), containerHeight - w.dom.offsetHeight);
+                if (clampedX !== w.x) w.x = clampedX;
+                if (clampedY !== w.y) w.y = clampedY;
+                w.dom.style.left = `${w.x}px`;
+                w.dom.style.top = `${w.y}px`;
+                // 如果因为尺寸变化字超出边界，修正速度方向
+                if (w.x <= 0 || w.x + w.dom.offsetWidth >= containerWidth) w.vx = -w.vx;
+                if (w.y <= 0 || w.y + w.dom.offsetHeight >= containerHeight) w.vy = -w.vy;
             }
-        });
-
-        // 清除已完成任务
-        clearCompletedBtn.addEventListener('click', () => {
-            tasks = tasks.filter(task => !task.completed);
-            saveTasks();
-            renderTasks();
-        });
-
-        // 添加按钮点击事件
-        addBtn.addEventListener('click', addTask);
-
-        // 回车键添加任务
-        taskInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                addTask();
+        }
+        
+        // 启动满屏粉色大字乱飞盛宴
+        function startPinkParty() {
+            if (isPartyActive) return;
+            isPartyActive = true;
+            
+            // 隐藏视频容器（优雅消失）
+            if (videoContainer) {
+                videoContainer.classList.add('hidden');
             }
+            
+            // 生成疯狂文字DOM
+            createFloatingWords();
+            
+            // 确保容器尺寸重新获取
+            containerWidth = window.innerWidth;
+            containerHeight = window.innerHeight;
+            handleResize();    // 立即修正边界
+            
+            // 启动动画循环 (满屏飞舞)
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            animationFrameId = requestAnimationFrame(updatePositions);
+            
+            // 额外增加一个“塔菲喵”音效感？不需要声音但视觉重击。再加额外脉冲: 每隔2秒随机让几个字临时变大
+            // 为了让效果更炸，增加间隔随机巨型膨胀。
+            let intervalCount = 0;
+            const pulseInterval = setInterval(() => {
+                if (!isPartyActive) {
+                    clearInterval(pulseInterval);
+                    return;
+                }
+                // 随机抽取10个文字瞬间放大1.5倍持续0.2秒再复原 (调皮夸张)
+                if (wordsArray.length) {
+                    const shuffleIndices = [...Array(wordsArray.length).keys()].sort(() => 0.5 - Math.random());
+                    for (let i = 0; i < Math.min(12, wordsArray.length); i++) {
+                        const item = wordsArray[shuffleIndices[i]];
+                        if (item && item.dom) {
+                            const originalTransition = item.dom.style.transition;
+                            item.dom.style.transition = 'transform 0.12s cubic-bezier(0.4, 1.3, 0.6, 1)';
+                            item.dom.style.transform = `scale(1.45) rotate(${(item.rotation || 0) + 4}deg)`;
+                            setTimeout(() => {
+                                if (item.dom) {
+                                    item.dom.style.transform = `rotate(${(item.rotation || 0)}deg)`;
+                                    item.dom.style.transition = originalTransition || '';
+                                }
+                            }, 120);
+                        }
+                    }
+                }
+                // 此外每隔3秒换一些文本 (更夸张动态)
+                if (Math.random() > 0.6) {
+                    const randomWord = wordsArray[Math.floor(Math.random() * wordsArray.length)];
+                    if (randomWord && randomWord.dom) {
+                        randomWord.dom.innerText = MESSAGES[Math.floor(Math.random() * MESSAGES.length)] + " 💖";
+                        setTimeout(() => {
+                            if(randomWord.dom) randomWord.dom.style.textShadow = "0 0 25px #ff3399";
+                        }, 50);
+                    }
+                }
+            }, 800);
+            
+            // 存储interval以便未来清理 (但永久狂欢，除非刷新页面)
+            window.__pinkPartyInterval = pulseInterval;
+        }
+        
+        // ------------- 监听用户关闭视频的行为 -------------
+        // 如何判定用户“关掉视频”？ 在B站iframe中，用户全屏返回或者点击关闭？ 没有直接API知道iframe内部动作。
+        // 但是更优雅的方案：感知 iframe 失去焦点或监听页面可见性？ 但最直接方式：用户如果关视频代表离开B站播放器，
+        // 更好的方式是监听用户点击网页任意位置并且视频容器隐藏？ 不符合直觉。
+        // 换一种交互: 提供一个优雅的悬浮关闭按钮（大粉色XX）点击后关闭视频显示满屏大字。不过为了满足“当用户把视频关掉之后”
+        // 更符合直觉：增加一个醒目的粉红关闭按钮“✖ 关掉视频看塔菲大字 ✖”，用户主动关掉视频之后呈现满屏飞字，完全符合需求。
+        // 也有一种场景: 用户手动从B站播放器里关掉视频流没法完美捕获。但我们可以设计一个漂亮醒目的“关掉视频，接受塔菲喵能量”按钮，点击后关闭视频区并触发狂欢！
+        // 这样才是最稳定的，并且用户可以主动关掉视频，展示满屏粉色大字乱飞。
+        
+        // 创建一个精美且夸张的关闭按钮（视频内层右上角，粉色大颗）
+        const closeBtn = document.createElement('div');
+        closeBtn.innerHTML = '💗 关掉视频 · 塔菲降临 💗';
+        closeBtn.style.position = 'fixed';
+        closeBtn.style.top = '24px';
+        closeBtn.style.right = '24px';
+        closeBtn.style.zIndex = '25';
+        closeBtn.style.background = 'linear-gradient(145deg, #ff3399, #ff66cc)';
+        closeBtn.style.color = 'white';
+        closeBtn.style.fontWeight = 'bold';
+        closeBtn.style.fontSize = '1.2rem';
+        closeBtn.style.padding = '12px 24px';
+        closeBtn.style.borderRadius = '60px';
+        closeBtn.style.boxShadow = '0 0 20px #ff66aa, 0 5px 15px rgba(0,0,0,0.3)';
+        closeBtn.style.cursor = 'pointer';
+        closeBtn.style.fontFamily = 'inherit';
+        closeBtn.style.backdropFilter = 'blur(12px)';
+        closeBtn.style.border = '2px solid #fff3b0';
+        closeBtn.style.textShadow = '0 1px 2px #c72a7a';
+        closeBtn.style.transition = 'transform 0.2s ease';
+        closeBtn.style.letterSpacing = '2px';
+        closeBtn.onmouseenter = () => closeBtn.style.transform = 'scale(1.05)';
+        closeBtn.onmouseleave = () => closeBtn.style.transform = 'scale(1)';
+        
+        // 点击关闭按钮：隐藏视频区，释放粉色大字狂潮
+        closeBtn.addEventListener('click', () => {
+            if (isPartyActive) return; // 避免重复生成
+            // 隐藏视频容器
+            if (videoContainer && !videoContainer.classList.contains('hidden')) {
+                videoContainer.classList.add('hidden');
+            }
+            // 开启疯字派对
+            startPinkParty();
         });
-
-        // 初始渲染
-        renderTasks();
-    </script>
+        
+        // 将按钮添加到body
+        document.body.appendChild(closeBtn);
+        
+        // 额外保护: 如果用户因为意外一直没有点关闭，也可以允许，但体验上按钮就在右上角，很夸张。
+        // 如果视频容器已经隐藏(比如直接调用)，也可以
+        // 监听页面关闭前暂停动画（无用不影响）
+        window.addEventListener('beforeunload', () => {
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        });
+        
+        // 调整尺寸监听
+        window.addEventListener('resize', () => {
+            handleResize();
+        });
+        
+        // 初始化保证容器高度等
+        setTimeout(() => {
+            containerWidth = window.innerWidth;
+            containerHeight = window.innerHeight;
+        }, 200);
+        
+        // 如果B站视频自动播放后用户可任意点击“关闭视频按钮”触发满屏粉色塔菲大字乱飞。
+        // 完全满足要求: 夸张粉色大字 + 多个 + 满屏乱飞 + 粉色主题。
+        console.log("✅ 粉红塔菲世界已准备，点击右上角『关掉视频·塔菲降临』立刻触发万字狂欢！");
+    })();
+</script>
 </body>
 </html>
